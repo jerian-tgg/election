@@ -80,9 +80,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.grey[700],
+            ),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               setState(() {
@@ -92,10 +95,15 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Vote cast successfully'),
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF2E7D32), // Darker green for better contrast
                 ),
               );
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1565C0), // Darker blue for better contrast
+              foregroundColor: Colors.white,
+              elevation: 2,
+            ),
             child: const Text('Confirm'),
           ),
         ],
@@ -107,17 +115,25 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Dashboard'),
+        title: const Text(
+          'Student Dashboard',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: const Color(0xFF1565C0), // Darker blue for better contrast
+        foregroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.notifications);
             },
           ),
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.userSettings);
             },
@@ -126,9 +142,18 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          indicatorColor: AppTheme.primaryColor,
-          labelColor: AppTheme.primaryColor,
-          unselectedLabelColor: AppTheme.textSecondaryColor,
+          indicatorColor: Colors.white,
+          indicatorWeight: 3,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+          ),
           tabs: _positions.map((position) => Tab(text: position)).toList(),
         ),
       ),
@@ -154,30 +179,38 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.spacingL),
       decoration: BoxDecoration(
-        color: AppTheme.primaryColor,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)], // Darker gradient
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Welcome, John Doe',
-            style: AppTheme.headingStyle.copyWith(
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: AppTheme.spacingS),
-          Text(
+          const Text(
             'Student Council Election 2024',
-            style: AppTheme.subheadingStyle.copyWith(
-              color: Colors.white.withOpacity(0.9),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: AppTheme.spacingM),
@@ -206,29 +239,33 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget _buildInfoChip(String label, String value, IconData icon, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(AppTheme.spacingS),
+        padding: const EdgeInsets.all(AppTheme.spacingM),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(AppTheme.borderRadiusM),
+          border: Border.all(color: Colors.white.withOpacity(0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: AppTheme.spacingXS),
+            Icon(icon, size: 20, color: Colors.white),
+            const SizedBox(width: AppTheme.spacingS),
             Column(
               children: [
                 Text(
                   value,
-                  style: AppTheme.bodyStyle.copyWith(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: color,
+                    color: Colors.white,
+                    fontSize: 18,
                   ),
                 ),
                 Text(
                   label,
-                  style: AppTheme.captionStyle.copyWith(
-                    color: color,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -242,7 +279,14 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget _buildCandidateList(List<Map<String, dynamic>> candidates) {
     if (candidates.isEmpty) {
       return const Center(
-        child: Text('No candidates for this position'),
+        child: Text(
+          'No candidates for this position',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       );
     }
 
@@ -257,7 +301,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget _buildCandidateCard(Map<String, dynamic> candidate) {
     return Card(
       margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
-      elevation: 2,
+      elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusM),
       ),
@@ -269,7 +313,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
             Row(
               children: [
                 CircleAvatar(
-                  radius: 30,
+                  radius: 32,
+                  backgroundColor: Colors.grey[300],
                   backgroundImage: NetworkImage(candidate['image']),
                 ),
                 const SizedBox(width: AppTheme.spacingM),
@@ -279,12 +324,19 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                     children: [
                       Text(
                         candidate['name'],
-                        style: AppTheme.subheadingStyle,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF212121), // Dark text for contrast
+                        ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         candidate['party'],
-                        style: AppTheme.bodyStyle.copyWith(
-                          color: AppTheme.textSecondaryColor,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF616161), // Medium gray for secondary text
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -294,19 +346,37 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                   ElevatedButton(
                     onPressed: () => _handleVote(candidate['id']),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
+                      backgroundColor: const Color(0xFF1565C0), // Darker blue
                       foregroundColor: Colors.white,
+                      elevation: 2,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.borderRadiusM),
                       ),
                     ),
-                    child: const Text('Vote'),
+                    child: const Text(
+                      'Vote',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
                   )
                 else
-                  const Chip(
-                    label: Text('Voted'),
-                    backgroundColor: Colors.green,
-                    labelStyle: TextStyle(color: Colors.white),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2E7D32), // Darker green
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Voted',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -316,8 +386,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
               children: [
                 Text(
                   'Votes: ${candidate['votes']}',
-                  style: AppTheme.bodyStyle.copyWith(
-                    color: AppTheme.textSecondaryColor,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF424242), // Darker gray for better readability
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 TextButton.icon(
@@ -334,8 +406,17 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                       },
                     );
                   },
-                  icon: const Icon(Icons.person),
-                  label: const Text('View Profile'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF1565C0), // Darker blue for links
+                  ),
+                  icon: const Icon(Icons.person, size: 18),
+                  label: const Text(
+                    'View Profile',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -344,4 +425,4 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
       ),
     );
   }
-} 
+}
