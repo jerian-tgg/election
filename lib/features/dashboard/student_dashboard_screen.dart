@@ -72,6 +72,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   }
 
   void _handleVote(String candidateId) {
+    final candidate = _candidates.firstWhere((c) => c['id'] == candidateId);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -80,30 +82,30 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey[700],
-            ),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               Navigator.pop(context);
               setState(() {
-                final candidate = _candidates.firstWhere((c) => c['id'] == candidateId);
                 candidate['hasVoted'] = true;
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Vote cast successfully'),
-                  backgroundColor: Color(0xFF2E7D32), // Darker green for better contrast
+
+              // Show success dialog
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Vote Successful'),
+                  content: Text('You voted for ${candidate['name']} for ${candidate['position']}.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('OK'),
+                    ),
+                  ],
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1565C0), // Darker blue for better contrast
-              foregroundColor: Colors.white,
-              elevation: 2,
-            ),
             child: const Text('Confirm'),
           ),
         ],
@@ -115,15 +117,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Student Dashboard',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: const Color(0xFF1565C0), // Darker blue for better contrast
-        foregroundColor: Colors.white,
+        title: const Text('Student Dashboard'),
         elevation: 0,
         actions: [
           IconButton(
@@ -143,17 +137,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
           controller: _tabController,
           isScrollable: true,
           indicatorColor: Colors.white,
-          indicatorWeight: 3,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          labelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-          ),
           tabs: _positions.map((position) => Tab(text: position)).toList(),
         ),
       ),
@@ -179,38 +164,30 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.spacingL),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1565C0), Color(0xFF0D47A1)], // Darker gradient
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppTheme.primaryColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Welcome, John Doe',
-            style: TextStyle(
+            style: AppTheme.headingStyle.copyWith(
               color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
+              fontSize: 24,
             ),
           ),
           const SizedBox(height: AppTheme.spacingS),
-          const Text(
+          Text(
             'Student Council Election 2024',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+            style: AppTheme.subheadingStyle.copyWith(
+              color: Colors.white.withOpacity(0.9),
             ),
           ),
           const SizedBox(height: AppTheme.spacingM),
@@ -239,33 +216,29 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget _buildInfoChip(String label, String value, IconData icon, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(AppTheme.spacingM),
+        padding: const EdgeInsets.all(AppTheme.spacingS),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(AppTheme.borderRadiusM),
-          border: Border.all(color: Colors.white.withOpacity(0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 20, color: Colors.white),
-            const SizedBox(width: AppTheme.spacingS),
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: AppTheme.spacingXS),
             Column(
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: AppTheme.bodyStyle.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 18,
+                    color: color,
                   ),
                 ),
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                  style: AppTheme.captionStyle.copyWith(
+                    color: color,
                   ),
                 ),
               ],
@@ -279,14 +252,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget _buildCandidateList(List<Map<String, dynamic>> candidates) {
     if (candidates.isEmpty) {
       return const Center(
-        child: Text(
-          'No candidates for this position',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        child: Text('No candidates for this position'),
       );
     }
 
@@ -301,7 +267,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget _buildCandidateCard(Map<String, dynamic> candidate) {
     return Card(
       margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
-      elevation: 4,
+      elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusM),
       ),
@@ -313,8 +279,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
             Row(
               children: [
                 CircleAvatar(
-                  radius: 32,
-                  backgroundColor: Colors.grey[300],
+                  radius: 30,
                   backgroundImage: NetworkImage(candidate['image']),
                 ),
                 const SizedBox(width: AppTheme.spacingM),
@@ -324,19 +289,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                     children: [
                       Text(
                         candidate['name'],
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF212121), // Dark text for contrast
-                        ),
+                        style: AppTheme.subheadingStyle,
                       ),
-                      const SizedBox(height: 4),
                       Text(
                         candidate['party'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF616161), // Medium gray for secondary text
-                          fontWeight: FontWeight.w500,
+                        style: AppTheme.bodyStyle.copyWith(
+                          color: AppTheme.textSecondaryColor,
                         ),
                       ),
                     ],
@@ -346,37 +304,19 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                   ElevatedButton(
                     onPressed: () => _handleVote(candidate['id']),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1565C0), // Darker blue
+                      backgroundColor: AppTheme.primaryColor,
                       foregroundColor: Colors.white,
-                      elevation: 2,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.borderRadiusM),
                       ),
                     ),
-                    child: const Text(
-                      'Vote',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
+                    child: const Text('Vote'),
                   )
                 else
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2E7D32), // Darker green
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Voted',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
+                  const Chip(
+                    label: Text('Voted'),
+                    backgroundColor: Colors.green,
+                    labelStyle: TextStyle(color: Colors.white),
                   ),
               ],
             ),
@@ -386,10 +326,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
               children: [
                 Text(
                   'Votes: ${candidate['votes']}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF424242), // Darker gray for better readability
-                    fontWeight: FontWeight.w600,
+                  style: AppTheme.bodyStyle.copyWith(
+                    color: AppTheme.textSecondaryColor,
                   ),
                 ),
                 TextButton.icon(
@@ -406,17 +344,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                       },
                     );
                   },
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF1565C0), // Darker blue for links
-                  ),
-                  icon: const Icon(Icons.person, size: 18),
-                  label: const Text(
-                    'View Profile',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
+                  icon: const Icon(Icons.person),
+                  label: const Text('View Profile'),
                 ),
               ],
             ),
