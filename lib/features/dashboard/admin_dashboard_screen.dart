@@ -85,49 +85,59 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildWelcomeCard() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.spacingM),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome, Admin',
-              style: AppTheme.headingStyle,
-            ),
-            const SizedBox(height: AppTheme.spacingS),
-            Text(
-              'Election Management System',
-              style: AppTheme.subheadingStyle,
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    text: 'Manage Elections',
-                    onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.electionSchedule);
-                    },
-                  ),
+  return Card(
+    child: Padding(
+      padding: const EdgeInsets.all(AppTheme.spacingM),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Welcome, Admin',
+            style: AppTheme.headingStyle,
+          ),
+          const SizedBox(height: AppTheme.spacingS),
+          Text(
+            'Election Management System',
+            style: AppTheme.subheadingStyle,
+          ),
+          const SizedBox(height: AppTheme.spacingM),
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: 'Manage Elections',
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.electionSchedule);
+                  },
                 ),
-                const SizedBox(width: AppTheme.spacingM),
-                Expanded(
-                  child: CustomButton(
-                    text: 'View Results',
-                    onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.liveResults);
-                    },
-                    isOutlined: true,
-                  ),
+              ),
+              const SizedBox(width: AppTheme.spacingM),
+              Expanded(
+                child: CustomButton(
+                  text: 'View Results',
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.liveResults);
+                  },
+                  isOutlined: true,
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              const SizedBox(width: AppTheme.spacingM),
+              Expanded(
+                child: CustomButton(
+                  text: 'Election Schedule',
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.electionSchedule);
+                  },
+                  isOutlined: true,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildStatistics() {
     return Column(

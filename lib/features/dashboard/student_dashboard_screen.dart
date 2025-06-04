@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_theme.dart';
 import '../../core/widgets/custom_button.dart';
 import '../../routes/app_routes.dart';
+import '../history/voter_history_screen.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   const StudentDashboardScreen({super.key});
@@ -121,16 +122,30 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.history, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const VoterHistoryScreen(),
+                ),
+              );
+            },
+            tooltip: 'Voter History',
+          ),
+          IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.notifications);
             },
+            tooltip: 'Notifications',
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.userSettings);
             },
+            tooltip: 'Settings',
           ),
         ],
         bottom: TabBar(

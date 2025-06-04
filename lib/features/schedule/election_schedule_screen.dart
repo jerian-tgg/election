@@ -170,36 +170,38 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(AppTheme.spacingM),
-      color: AppTheme.primaryColor.withOpacity(0.1),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Election Schedule',
-                  style: AppTheme.headingStyle,
+  return Container(
+    padding: const EdgeInsets.all(AppTheme.spacingM),
+    color: AppTheme.primaryColor.withOpacity(0.1),
+    child: Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Election Schedule',
+                style: AppTheme.headingStyle.copyWith(
+                  color: Colors.black, // Add this line to make text black
                 ),
-                const SizedBox(height: AppTheme.spacingS),
-                Text(
-                  'View and manage upcoming elections',
-                  style: AppTheme.bodyStyle,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: AppTheme.spacingS),
+              Text(
+                'View and manage upcoming elections',
+                style: AppTheme.bodyStyle,
+              ),
+            ],
           ),
-          Chip(
-            label: Text(_selectedFilter),
-            backgroundColor: AppTheme.primaryColor,
-            labelStyle: const TextStyle(color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+        Chip(
+          label: Text(_selectedFilter),
+          backgroundColor: AppTheme.primaryColor,
+          labelStyle: const TextStyle(color: Colors.white),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildAddElectionForm() {
     return Card(

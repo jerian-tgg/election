@@ -23,7 +23,7 @@ class VoterHistoryScreen extends StatelessWidget {
         'time': '11:15 AM',
         'position': 'Department Representative',
         'candidate': 'Sarah Johnson',
-        'status': 'Completed',
+        'status': 'Cancelled',
       },
       {
         'id': '3',
@@ -32,7 +32,7 @@ class VoterHistoryScreen extends StatelessWidget {
         'time': '3:45 PM',
         'position': 'Class Representative',
         'candidate': 'Michael Chen',
-        'status': 'Completed',
+        'status': 'Did Not Vote',
       },
     ];
 
@@ -62,7 +62,9 @@ class VoterHistoryScreen extends StatelessWidget {
       children: [
         Text(
           'Voting History',
-          style: AppTheme.headingStyle,
+          style: AppTheme.headingStyle.copyWith(
+            color: AppTheme.textPrimaryColor,
+          ),
         ),
         const SizedBox(height: AppTheme.spacingS),
         Text(
@@ -175,10 +177,11 @@ class VoterHistoryScreen extends StatelessWidget {
                       'Position: ${vote['position']}',
                       style: AppTheme.bodyStyle,
                     ),
-                    Text(
-                      'Voted for: ${vote['candidate']}',
-                      style: AppTheme.bodyStyle,
-                    ),
+                    if (vote['status'] == 'Completed')
+                      Text(
+                        'Voted for: ${vote['candidate']}',
+                        style: AppTheme.bodyStyle,
+                      ),
                   ],
                 ),
                 trailing: _buildStatusChip(vote['status']),
@@ -194,6 +197,9 @@ class VoterHistoryScreen extends StatelessWidget {
   Widget _buildStatusChip(String status) {
     Color color;
     switch (status) {
+      case 'Did Not Vote':
+        color = Colors.grey;
+        break;
       case 'Completed':
         color = Colors.green;
         break;
@@ -220,4 +226,4 @@ class VoterHistoryScreen extends StatelessWidget {
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
-} 
+}
