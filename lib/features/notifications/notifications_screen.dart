@@ -88,14 +88,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: _notifications.isEmpty
           ? _buildEmptyState()
           : ListView.separated(
-              padding: const EdgeInsets.all(AppTheme.spacingL),
-              itemCount: _notifications.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                final notification = _notifications[index];
-                return _buildNotificationItem(notification);
-              },
-            ),
+        padding: const EdgeInsets.all(AppTheme.spacingL),
+        itemCount: _notifications.length,
+        separatorBuilder: (context, index) => const Divider(),
+        itemBuilder: (context, index) {
+          final notification = _notifications[index];
+          return _buildNotificationItem(notification);
+        },
+      ),
     );
   }
 
@@ -112,7 +112,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           const SizedBox(height: AppTheme.spacingM),
           Text(
             'No Notifications',
-            style: AppTheme.headingStyle,
+            style: AppTheme.headingStyle.copyWith(color: Colors.black),
           ),
           const SizedBox(height: AppTheme.spacingS),
           Text(
@@ -240,4 +240,4 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ),
     );
   }
-} 
+}

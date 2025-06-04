@@ -50,7 +50,7 @@ class _LoginStudentScreenState extends State<LoginStudentScreen> {
                 children: [
                   Text(
                     'Student Login',
-                    style: AppTheme.headingStyle,
+                    style: AppTheme.headingStyle.copyWith(color: Colors.black),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppTheme.spacingXL),
@@ -115,4 +115,4 @@ class _LoginStudentScreenState extends State<LoginStudentScreen> {
       ),
     );
   }
-} 
+}

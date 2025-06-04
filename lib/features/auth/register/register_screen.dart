@@ -56,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   Text(
                     'Create Account',
-                    style: AppTheme.headingStyle,
+                    style: AppTheme.headingStyle.copyWith(color: Colors.black),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppTheme.spacingXL),
@@ -155,4 +155,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-} 
+}
