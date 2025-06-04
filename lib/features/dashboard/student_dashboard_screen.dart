@@ -29,6 +29,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
       'party': 'Student Alliance',
       'image': 'https://via.placeholder.com/150',
       'hasVoted': false,
+      'isSelected': false,
       'votes': 245,
     },
     {
@@ -38,6 +39,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
       'party': 'Progressive Students',
       'image': 'https://via.placeholder.com/150',
       'hasVoted': false,
+      'isSelected': false,
       'votes': 189,
     },
     {
@@ -46,7 +48,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
       'position': 'Vice President',
       'party': 'Student Alliance',
       'image': 'https://via.placeholder.com/150',
-      'hasVoted': true,
+      'hasVoted': false,
+      'isSelected': false,
       'votes': 156,
     },
     {
@@ -56,6 +59,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
       'party': 'Progressive Students',
       'image': 'https://via.placeholder.com/150',
       'hasVoted': false,
+      'isSelected': false,
       'votes': 120,
     },
   ];
@@ -89,7 +93,14 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
             onPressed: () {
               Navigator.pop(context);
               setState(() {
-                candidate['hasVoted'] = true;
+                // Mark all candidates for this position as voted (disable voting for the position)
+                for (var c in _candidates) {
+                  if (c['position'] == candidate['position']) {
+                    c['hasVoted'] = true;
+                  }
+                }
+                // Mark the selected candidate as the one voted for
+                candidate['isSelected'] = true;
               });
 
               // Show success dialog
@@ -327,10 +338,16 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                     ),
                     child: const Text('Vote'),
                   )
+                else if (candidate['isSelected'] == true)
+                  const Chip(
+                    label: Text('My Vote'),
+                    backgroundColor: Colors.green,
+                    labelStyle: TextStyle(color: Colors.white),
+                  )
                 else
                   const Chip(
                     label: Text('Voted'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.grey,
                     labelStyle: TextStyle(color: Colors.white),
                   ),
               ],
