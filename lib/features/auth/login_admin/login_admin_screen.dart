@@ -34,14 +34,14 @@ class _LoginAdminScreenState extends State<LoginAdminScreen> {
   void _handleLogin() {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
-      
+
       // Simulate login delay
       Future.delayed(const Duration(seconds: 2), () {
         setState(() => _isLoading = false);
-        
+
         final username = _usernameController.text.trim();
         final password = _passwordController.text.trim();
-        
+
         // Check credentials
         if (username == 'admin' && password == 'admin123') {
           Navigator.pushReplacementNamed(context, AppRoutes.adminDashboard);
@@ -71,7 +71,9 @@ class _LoginAdminScreenState extends State<LoginAdminScreen> {
                 const SizedBox(height: AppTheme.spacingXL),
                 Text(
                   'Admin Login',
-                  style: AppTheme.headingStyle,
+                  style: AppTheme.headingStyle.copyWith(
+                    color: AppTheme.textPrimaryColor,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppTheme.spacingM),
@@ -156,4 +158,4 @@ class _LoginAdminScreenState extends State<LoginAdminScreen> {
       ),
     );
   }
-} 
+}
