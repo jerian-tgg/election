@@ -11,6 +11,8 @@ class ElectionScheduleScreen extends StatefulWidget {
 
 class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
   bool _isAddingElection = false;
+  bool _isEditingElection = false;
+  String? _editingElectionId;
   String _selectedFilter = 'All';
   final List<String> _filters = ['All', 'Upcoming', 'Ongoing', 'Completed'];
 
@@ -32,6 +34,16 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
       ],
       'location': 'Main Campus',
       'organizer': 'Student Affairs Office',
+      'candidates': [
+        {
+          'position': 'President',
+          'candidates': ['John Doe', 'Jane Smith']
+        },
+        {
+          'position': 'Vice President',
+          'candidates': ['Mike Johnson', 'Sarah Wilson']
+        }
+      ]
     },
     {
       'id': '2',
@@ -44,6 +56,7 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
       'positions': ['Class Representative'],
       'location': 'Department Buildings',
       'organizer': 'Department Heads',
+      'candidates': []
     },
     {
       'id': '3',
@@ -59,6 +72,12 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
       ],
       'location': 'Department Buildings',
       'organizer': 'Department Heads',
+      'candidates': [
+        {
+          'position': 'Department Representative',
+          'candidates': ['Alice Brown', 'Bob Davis']
+        }
+      ]
     },
   ];
 
@@ -71,6 +90,8 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
   final _locationController = TextEditingController();
   final _organizerController = TextEditingController();
   final List<String> _selectedPositions = [];
+  String _selectedStatus = 'Upcoming';
+  List<Map<String, dynamic>> _editingCandidates = [];
 
   @override
   void dispose() {
@@ -87,12 +108,52 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
   void _showAddElectionForm() {
     setState(() {
       _isAddingElection = true;
+      _isEditingElection = false;
+      _editingElectionId = null;
     });
   }
 
-  void _hideAddElectionForm() {
+  void _showEditElectionForm(Map<String, dynamic> election) {
+    setState(() {
+      _isEditingElection = true;
+      _isAddingElection = false;
+      _editingElectionId = election['id'];
+
+      // Populate form fields with existing data
+      _titleController.text = election['title'];
+      _dateController.text = election['date'];
+      _startTimeController.text = election['startTime'];
+      _endTimeController.text = election['endTime'];
+      _descriptionController.text = election['description'];
+      _locationController.text = election['location'];
+      _organizerController.text = election['organizer'];
+      _selectedPositions.clear();
+      _selectedPositions.addAll(List<String>.from(election['positions']));
+      _selectedStatus = election['status'];
+
+      // Initialize candidates for editing
+      _editingCandidates = List<Map<String, dynamic>>.from(
+          election['candidates'] ?? []
+      );
+
+      // Ensure all positions have candidate entries
+      for (String position in _selectedPositions) {
+        bool hasEntry = _editingCandidates.any((c) => c['position'] == position);
+        if (!hasEntry) {
+          _editingCandidates.add({
+            'position': position,
+            'candidates': <String>[]
+          });
+        }
+      }
+    });
+  }
+
+  void _hideForm() {
     setState(() {
       _isAddingElection = false;
+      _isEditingElection = false;
+      _editingElectionId = null;
       _titleController.clear();
       _dateController.clear();
       _startTimeController.clear();
@@ -101,13 +162,32 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
       _locationController.clear();
       _organizerController.clear();
       _selectedPositions.clear();
+      _selectedStatus = 'Upcoming';
+      _editingCandidates.clear();
     });
   }
 
   void _handleAddElection() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement adding election
-      _hideAddElectionForm();
+      final newElection = {
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
+        'title': _titleController.text,
+        'date': _dateController.text,
+        'startTime': _startTimeController.text,
+        'endTime': _endTimeController.text,
+        'status': _selectedStatus,
+        'description': _descriptionController.text,
+        'positions': List<String>.from(_selectedPositions),
+        'location': _locationController.text,
+        'organizer': _organizerController.text,
+        'candidates': List<Map<String, dynamic>>.from(_editingCandidates),
+      };
+
+      setState(() {
+        _elections.add(newElection);
+      });
+
+      _hideForm();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Election added successfully'),
@@ -115,6 +195,93 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
         ),
       );
     }
+  }
+
+  void _handleEditElection() {
+    if (_formKey.currentState!.validate()) {
+      final electionIndex = _elections.indexWhere((e) => e['id'] == _editingElectionId);
+      if (electionIndex != -1) {
+        setState(() {
+          _elections[electionIndex] = {
+            'id': _editingElectionId,
+            'title': _titleController.text,
+            'date': _dateController.text,
+            'startTime': _startTimeController.text,
+            'endTime': _endTimeController.text,
+            'status': _selectedStatus,
+            'description': _descriptionController.text,
+            'positions': List<String>.from(_selectedPositions),
+            'location': _locationController.text,
+            'organizer': _organizerController.text,
+            'candidates': List<Map<String, dynamic>>.from(_editingCandidates),
+          };
+        });
+
+        _hideForm();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Election updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
+  }
+
+  void _addCandidateToPosition(String position) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final controller = TextEditingController();
+        return AlertDialog(
+          title: Text('Add Candidate for $position'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Candidate Name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  setState(() {
+                    final candidateEntry = _editingCandidates.firstWhere(
+                            (c) => c['position'] == position,
+                        orElse: () {
+                          final newEntry = {
+                            'position': position,
+                            'candidates': <String>[]
+                          };
+                          _editingCandidates.add(newEntry);
+                          return newEntry;
+                        }
+                    );
+                    (candidateEntry['candidates'] as List<String>).add(controller.text);
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _removeCandidateFromPosition(String position, String candidate) {
+    setState(() {
+      final candidateEntry = _editingCandidates.firstWhere(
+            (c) => c['position'] == position,
+      );
+      (candidateEntry['candidates'] as List<String>).remove(candidate);
+    });
   }
 
   List<Map<String, dynamic>> _getFilteredElections() {
@@ -156,254 +323,343 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
       body: Column(
         children: [
           _buildHeader(),
-          if (_isAddingElection) _buildAddElectionForm(),
-          Expanded(
-            child: _buildElectionList(),
-          ),
+          if (_isAddingElection || _isEditingElection)
+            Expanded(
+              child: _buildElectionForm(),
+            )
+          else
+            Expanded(
+              child: _buildElectionList(),
+            ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _isAddingElection ? null : _showAddElectionForm,
+        onPressed: (_isAddingElection || _isEditingElection) ? null : _showAddElectionForm,
         child: const Icon(Icons.add),
       ),
     );
   }
 
   Widget _buildHeader() {
-  return Container(
-    padding: const EdgeInsets.all(AppTheme.spacingM),
-    color: AppTheme.primaryColor.withOpacity(0.1),
-    child: Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Election Schedule',
-                style: AppTheme.headingStyle.copyWith(
-                  color: Colors.black, // Add this line to make text black
+    return Container(
+      padding: const EdgeInsets.all(AppTheme.spacingM),
+      color: AppTheme.primaryColor.withOpacity(0.1),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Election Schedule',
+                  style: AppTheme.headingStyle.copyWith(
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppTheme.spacingS),
-              Text(
-                'View and manage upcoming elections',
-                style: AppTheme.bodyStyle,
-              ),
-            ],
+                const SizedBox(height: AppTheme.spacingS),
+                Text(
+                  'View and manage upcoming elections',
+                  style: AppTheme.bodyStyle,
+                ),
+              ],
+            ),
           ),
-        ),
-        Chip(
-          label: Text(_selectedFilter),
-          backgroundColor: AppTheme.primaryColor,
-          labelStyle: const TextStyle(color: Colors.white),
-        ),
-      ],
-    ),
-  );
-}
+          Chip(
+            label: Text(_selectedFilter),
+            backgroundColor: AppTheme.primaryColor,
+            labelStyle: const TextStyle(color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget _buildAddElectionForm() {
+  Widget _buildElectionForm() {
     return Card(
-      margin: const EdgeInsets.all(AppTheme.spacingM),
+        margin: const EdgeInsets.all(AppTheme.spacingM),
+    child: Padding(
+    padding: const EdgeInsets.all(AppTheme.spacingM),
+    child: Form(
+    key: _formKey,
+    child: SingleChildScrollView(
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    Text(
+    _isEditingElection ? 'Edit Election' : 'Add New Election',
+    style: AppTheme.subheadingStyle,
+    ),
+    const SizedBox(height: AppTheme.spacingM),
+    TextFormField(
+    controller: _titleController,
+    decoration: const InputDecoration(
+    labelText: 'Title',
+    border: OutlineInputBorder(),
+    ),
+    validator: (value) {
+    if (value == null || value.isEmpty) {
+    return 'Please enter a title';
+    }
+    return null;
+    },
+    ),
+    const SizedBox(height: AppTheme.spacingM),
+    Row(
+    children: [
+    Expanded(
+    child: TextFormField(
+    controller: _dateController,
+    decoration: const InputDecoration(
+    labelText: 'Date',
+    border: OutlineInputBorder(),
+    ),
+    readOnly: true,
+    onTap: () async {
+    final date = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime.now(),
+    lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date != null) {
+    _dateController.text = '${date.month}/${date.day}/${date.year}';
+    }
+    },
+    validator: (value) {
+    if (value == null || value.isEmpty) {
+    return 'Please select a date';
+    }
+    return null;
+    },
+    ),
+    ),
+    const SizedBox(width: AppTheme.spacingM),
+    Expanded(
+    child: TextFormField(
+    controller: _startTimeController,
+    decoration: const InputDecoration(
+    labelText: 'Start Time',
+    border: OutlineInputBorder(),
+    ),
+    readOnly: true,
+    onTap: () async {
+    final time = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+    );
+    if (time != null) {
+    _startTimeController.text = time.format(context);
+    }
+    },
+    validator: (value) {
+    if (value == null || value.isEmpty) {
+    return 'Please select start time';
+    }
+    return null;
+    },
+    ),
+    ),
+    const SizedBox(width: AppTheme.spacingM),
+    Expanded(
+    child: TextFormField(
+    controller: _endTimeController,
+    decoration: const InputDecoration(
+    labelText: 'End Time',
+    border: OutlineInputBorder(),
+    ),
+    readOnly: true,
+    onTap: () async {
+    final time = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+    );
+    if (time != null) {
+    _endTimeController.text = time.format(context);
+    }
+    },
+    validator: (value) {
+    if (value == null || value.isEmpty) {
+    return 'Please select end time';
+    }
+    return null;
+    },
+    ),
+    ),
+    ],
+    ),
+    const SizedBox(height: AppTheme.spacingM),
+    DropdownButtonFormField<String>(
+    value: _selectedStatus,
+    decoration: const InputDecoration(
+    labelText: 'Status',
+    border: OutlineInputBorder(),
+    ),
+    items: ['Upcoming', 'Ongoing', 'Completed'].map((status) {
+    return DropdownMenuItem(
+    value: status,
+    child: Text(status),
+    );
+    }).toList(),
+    onChanged: (value) {
+    setState(() {
+    _selectedStatus = value!;
+    });
+    },
+    ),
+    const SizedBox(height: AppTheme.spacingM),
+    TextFormField(
+    controller: _descriptionController,
+    decoration: const InputDecoration(
+    labelText: 'Description',
+    border: OutlineInputBorder(),
+    ),
+    maxLines: 3,
+    validator: (value) {
+    if (value == null || value.isEmpty) {
+    return 'Please enter a description';
+    }
+    return null;
+    },
+    ),
+    const SizedBox(height: AppTheme.spacingM),
+    TextFormField(
+    controller: _locationController,
+    decoration: const InputDecoration(
+    labelText: 'Location',
+    border: OutlineInputBorder(),
+    ),
+    validator: (value) {
+    if (value == null || value.isEmpty) {
+    return 'Please enter a location';
+    }
+    return null;
+    },
+    ),
+    const SizedBox(height: AppTheme.spacingM),
+    TextFormField(
+    controller: _organizerController,
+    decoration: const InputDecoration(
+    labelText: 'Organizer',
+    border: OutlineInputBorder(),
+    ),
+    validator: (value) {
+    if (value == null || value.isEmpty) {
+    return 'Please enter an organizer';
+    }
+    return null;
+    },
+    ),
+    const SizedBox(height: AppTheme.spacingM),
+    Text(
+    'Positions',
+    style: AppTheme.bodyStyle.copyWith(fontWeight: FontWeight.bold),
+    ),
+    const SizedBox(height: AppTheme.spacingS),
+    Wrap(
+    spacing: AppTheme.spacingS,
+    children: [
+    'President',
+    'Vice President',
+    'Secretary',
+    'Treasurer',
+    'Auditor',
+    'Class Representative',
+    'Department Representative',
+    ].map((position) => FilterChip(
+    label: Text(position),
+    selected: _selectedPositions.contains(position),
+    onSelected: (selected) {
+    setState(() {
+    if (selected) {
+    _selectedPositions.add(position);
+    // Add candidate entry for new position
+    _editingCandidates.add({
+    'position': position,
+    'candidates': <String>[]
+    });
+    } else {
+    _selectedPositions.remove(position);
+    // Remove candidate entry for removed position
+    _editingCandidates.removeWhere((c) => c['position'] == position);
+    }
+    });
+    },
+    )).toList(),
+    ),
+    if (_selectedPositions.isNotEmpty) ...[
+    const SizedBox(height: AppTheme.spacingM),
+    Text(
+    'Candidates',
+    style: AppTheme.bodyStyle.copyWith(fontWeight: FontWeight.bold),
+    ),
+    const SizedBox(height: AppTheme.spacingS),
+    ..._selectedPositions.map((position) => _buildCandidateSection(position)),
+    ],
+    const SizedBox(height: AppTheme.spacingM),
+    Row(
+    children: [
+    Expanded(
+    child: CustomButton(
+    text: 'Cancel',
+    onPressed: _hideForm,
+    isOutlined: true,
+    ),
+    ),
+    const SizedBox(width: AppTheme.spacingM),
+    Expanded(
+    child: CustomButton(
+    text: _isEditingElection ? 'Update Election' : 'Add Election',
+    onPressed: _isEditingElection ? _handleEditElection : _handleAddElection,
+    ),
+    ),
+    ],
+    ),
+    ],
+    ),
+    ),
+    ),
+    ));
+  }
+
+  Widget _buildCandidateSection(String position) {
+    final candidateEntry = _editingCandidates.firstWhere(
+          (c) => c['position'] == position,
+      orElse: () => {'position': position, 'candidates': <String>[]},
+    );
+    final candidates = candidateEntry['candidates'] as List<String>;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppTheme.spacingS),
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.spacingM),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Add New Election',
-                style: AppTheme.subheadingStyle,
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  position,
+                  style: AppTheme.bodyStyle.copyWith(fontWeight: FontWeight.bold),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _dateController,
-                      decoration: const InputDecoration(
-                        labelText: 'Date',
-                        border: OutlineInputBorder(),
-                      ),
-                      readOnly: true,
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
-                        );
-                        if (date != null) {
-                          _dateController.text = '${date.month}/${date.day}/${date.year}';
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select a date';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _startTimeController,
-                      decoration: const InputDecoration(
-                        labelText: 'Start Time',
-                        border: OutlineInputBorder(),
-                      ),
-                      readOnly: true,
-                      onTap: () async {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                        );
-                        if (time != null) {
-                          _startTimeController.text = time.format(context);
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select start time';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _endTimeController,
-                      decoration: const InputDecoration(
-                        labelText: 'End Time',
-                        border: OutlineInputBorder(),
-                      ),
-                      readOnly: true,
-                      onTap: () async {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                        );
-                        if (time != null) {
-                          _endTimeController.text = time.format(context);
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select end time';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () => _addCandidateToPosition(position),
                 ),
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              TextFormField(
-                controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a location';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingM),
-              TextFormField(
-                controller: _organizerController,
-                decoration: const InputDecoration(
-                  labelText: 'Organizer',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an organizer';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppTheme.spacingM),
+              ],
+            ),
+            if (candidates.isEmpty)
+              const Text('No candidates added yet')
+            else
               Wrap(
                 spacing: AppTheme.spacingS,
-                children: [
-                  'President',
-                  'Vice President',
-                  'Secretary',
-                  'Treasurer',
-                  'Auditor',
-                  'Class Representative',
-                  'Department Representative',
-                ].map((position) => FilterChip(
-                  label: Text(position),
-                  selected: _selectedPositions.contains(position),
-                  onSelected: (selected) {
-                    setState(() {
-                      if (selected) {
-                        _selectedPositions.add(position);
-                      } else {
-                        _selectedPositions.remove(position);
-                      }
-                    });
-                  },
+                children: candidates.map((candidate) => Chip(
+                  label: Text(candidate),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                  onDeleted: () => _removeCandidateFromPosition(position, candidate),
                 )).toList(),
               ),
-              const SizedBox(height: AppTheme.spacingM),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomButton(
-                      text: 'Cancel',
-                      onPressed: _hideAddElectionForm,
-                      isOutlined: true,
-                    ),
-                  ),
-                  const SizedBox(width: AppTheme.spacingM),
-                  Expanded(
-                    child: CustomButton(
-                      text: 'Add Election',
-                      onPressed: _handleAddElection,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -473,6 +729,43 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
                         backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
                       )).toList(),
                     ),
+                    if (election['candidates'] != null && (election['candidates'] as List).isNotEmpty) ...[
+                      const SizedBox(height: AppTheme.spacingM),
+                      Text(
+                        'Candidates',
+                        style: AppTheme.bodyStyle.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.spacingS),
+                      ...(election['candidates'] as List<Map<String, dynamic>>).map((candidateEntry) {
+                        final position = candidateEntry['position'] as String;
+                        final candidates = candidateEntry['candidates'] as List<String>;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppTheme.spacingS),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '$position:',
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 4),
+                              if (candidates.isEmpty)
+                                const Text('No candidates')
+                              else
+                                Wrap(
+                                  spacing: AppTheme.spacingS,
+                                  children: candidates.map((candidate) => Chip(
+                                    label: Text(candidate),
+                                    backgroundColor: Colors.green.withOpacity(0.1),
+                                  )).toList(),
+                                ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ],
                     const SizedBox(height: AppTheme.spacingM),
                     Text(
                       'Location',
@@ -507,9 +800,7 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
                         Expanded(
                           child: CustomButton(
                             text: 'Edit',
-                            onPressed: () {
-                              // TODO: Implement edit
-                            },
+                            onPressed: () => _showEditElectionForm(election),
                           ),
                         ),
                       ],
@@ -548,4 +839,4 @@ class _ElectionScheduleScreenState extends State<ElectionScheduleScreen> {
       backgroundColor: color,
     );
   }
-} 
+}
