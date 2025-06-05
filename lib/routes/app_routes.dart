@@ -6,7 +6,6 @@ import '../features/dashboard/student_dashboard_screen.dart';
 import '../features/dashboard/admin_dashboard_screen.dart';
 import '../features/candidate/candidate_profile_screen.dart';
 import '../features/candidate/candidate_management_screen.dart';
-import '../features/voting/voting_screen.dart';
 import '../features/voting/live_results_screen.dart';
 import '../features/settings/user_settings_screen.dart';
 import '../features/history/voter_history_screen.dart';
@@ -22,7 +21,6 @@ class AppRoutes {
   static const String adminDashboard = '/admin-dashboard';
   static const String candidateProfile = '/candidate-profile';
   static const String candidateManagement = '/candidate-management';
-  static const String voting = '/voting';
   static const String liveResults = '/live-results';
   static const String userSettings = '/user-settings';
   static const String voterHistory = '/voter-history';
@@ -37,7 +35,6 @@ class AppRoutes {
         studentDashboard: (context) => const StudentDashboardScreen(),
         adminDashboard: (context) => const AdminDashboardScreen(),
         candidateManagement: (context) => const CandidateManagementScreen(),
-        voting: (context) => const VotingScreen(),
         liveResults: (context) => const LiveResultsScreen(),
         userSettings: (context) => const UserSettingsScreen(),
         voterHistory: (context) => const VoterHistoryScreen(),
