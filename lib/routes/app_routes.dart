@@ -8,7 +8,6 @@ import '../features/candidate/candidate_profile_screen.dart';
 import '../features/candidate/candidate_management_screen.dart';
 import '../features/voting/voting_screen.dart';
 import '../features/voting/live_results_screen.dart';
-import '../features/voting/final_results_screen.dart';
 import '../features/settings/user_settings_screen.dart';
 import '../features/history/voter_history_screen.dart';
 import '../features/notifications/notifications_screen.dart';
@@ -25,7 +24,6 @@ class AppRoutes {
   static const String candidateManagement = '/candidate-management';
   static const String voting = '/voting';
   static const String liveResults = '/live-results';
-  static const String finalResults = '/final-results';
   static const String userSettings = '/user-settings';
   static const String voterHistory = '/voter-history';
   static const String notifications = '/notifications';
@@ -41,7 +39,6 @@ class AppRoutes {
         candidateManagement: (context) => const CandidateManagementScreen(),
         voting: (context) => const VotingScreen(),
         liveResults: (context) => const LiveResultsScreen(),
-        finalResults: (context) => const FinalResultsScreen(),
         userSettings: (context) => const UserSettingsScreen(),
         voterHistory: (context) => const VoterHistoryScreen(),
         notifications: (context) => const NotificationsScreen(),
