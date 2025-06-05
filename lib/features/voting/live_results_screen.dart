@@ -53,6 +53,10 @@ class _LiveResultsScreenState extends State<LiveResultsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Live Results'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacingM),
