@@ -8,7 +8,7 @@ import '../features/candidate/candidate_profile_screen.dart';
 import '../features/candidate/candidate_management_screen.dart';
 import '../features/voting/voting_screen.dart';
 import '../features/voting/live_results_screen.dart';
-import '../features/results/final_results_screen.dart';
+import '../features/voting/final_results_screen.dart';
 import '../features/settings/user_settings_screen.dart';
 import '../features/history/voter_history_screen.dart';
 import '../features/notifications/notifications_screen.dart';
